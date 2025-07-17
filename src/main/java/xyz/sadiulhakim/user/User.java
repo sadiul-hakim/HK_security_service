@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import xyz.sadiulhakim.enumeration.UserLevel;
 import xyz.sadiulhakim.role.Role;
 
 import java.time.LocalDateTime;
@@ -32,6 +33,9 @@ public class User {
     @Column(length = 100)
     private String password;
 
+    @Enumerated(EnumType.STRING)
+    private UserLevel level;
+
     private LocalDateTime joinedAt = LocalDateTime.now();
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -42,10 +46,11 @@ public class User {
     )
     private List<Role> roles = new ArrayList<>();
 
-    public User(String fullName, String username, String password) {
+    public User(String fullName, String username, String password, UserLevel level) {
         this.fullName = fullName;
         this.username = username;
         this.password = password;
+        this.level = level;
     }
 
     @Override
