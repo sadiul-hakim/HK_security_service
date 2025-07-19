@@ -22,8 +22,10 @@ import xyz.sadiulhakim.user.User;
 import xyz.sadiulhakim.user.UserService;
 import xyz.sadiulhakim.util.JwtHelper;
 import xyz.sadiulhakim.util.ResponseUtility;
+import xyz.sadiulhakim.util.SecurityUtility;
 import xyz.sadiulhakim.util.TokenUtil;
 
+import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +42,10 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             "/login",
             "/validate-token",
             "/refreshToken"
+    );
+
+    private final List<String> adminAccessAPis = List.of(
+
     );
 
     @Override
@@ -82,6 +88,8 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                 throw new InvalidTokenException("Invalid Token!");
             }
 
+            checkAdminAccess(user, requestURI);
+
             // If the token is valid and user is not authenticated, authenticate the user
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
@@ -103,6 +111,18 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             Map<String, String> errorMap = new HashMap<>();
             errorMap.put("error", ex.getMessage());
             ResponseUtility.commitResponse(response, errorMap, 500);
+        }
+    }
+
+    private void checkAdminAccess(User user, String requestURI) throws Exception {
+        boolean isAdmin = SecurityUtility.isAdmin(user) || SecurityUtility.isSuperUser(user);
+        for (String api : adminAccessAPis) {
+            boolean matched = SecurityUtility.matchPath(api, requestURI);
+            if (matched && isAdmin) {
+                break;
+            } else if (matched) {
+                throw new AccessDeniedException("Access denied. User " + user.getUsername() + " to access URL: " + requestURI);
+            }
         }
     }
 }

@@ -36,7 +36,8 @@ public class SecurityUtility {
     public static boolean checkApiAccess(User user, String path) {
         if (isSuperUser(user)) return true;
 
-        String basePath = path.split("\\?")[0]; // TODO : check this
+        // I assume that path contains the service name
+        String basePath = path.split("\\?")[0];
 
         return user.getRoles().stream()
                 .flatMap(role -> role.getPermissions().stream())
@@ -69,8 +70,7 @@ public class SecurityUtility {
         }
     }
 
-
-    private static boolean matchPath(String pathPattern, String path) {
+    public static boolean matchPath(String pathPattern, String path) {
 
         FileSystem fileSystem = FileSystems.getDefault();
         PathMatcher pathMatcher = fileSystem.getPathMatcher(PATH_PREFIX + pathPattern);
