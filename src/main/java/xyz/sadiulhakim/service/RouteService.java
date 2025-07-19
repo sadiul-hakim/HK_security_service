@@ -16,6 +16,7 @@ import xyz.sadiulhakim.user.User;
 import xyz.sadiulhakim.user.UserService;
 import xyz.sadiulhakim.util.ApiRateLimiter;
 import xyz.sadiulhakim.util.JwtHelper;
+import xyz.sadiulhakim.util.RouteValidator;
 import xyz.sadiulhakim.util.SecurityUtility;
 
 import java.nio.file.AccessDeniedException;
@@ -39,6 +40,8 @@ public class RouteService {
 
     public ResponseEntity<?> route(Route route, String token) {
         try {
+
+            RouteValidator.validateRoute(route);
             String username = JwtHelper.extractUsername(token);
             User user = userService.findByUsername(username);
             boolean hasAccess = SecurityUtility.checkApiAccess(user, route.getPath());
@@ -71,8 +74,7 @@ public class RouteService {
 
         } catch (Exception ex) {
             log.error("Could not route to path {}. Error {}", route.getPath(), ex.getMessage());
+            throw new RuntimeException("Could not route to path " + route.getPath() + ". Error " + ex.getMessage());
         }
-
-        return null;
     }
 }

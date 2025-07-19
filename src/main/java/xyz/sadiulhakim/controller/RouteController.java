@@ -1,7 +1,5 @@
 package xyz.sadiulhakim.controller;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -13,19 +11,24 @@ import xyz.sadiulhakim.annotation.RequireAccessToken;
 import xyz.sadiulhakim.pojo.Route;
 import xyz.sadiulhakim.service.RouteService;
 
+import java.util.Collections;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 public class RouteController {
 
-    private final ObjectMapper objectMapper = new ObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
     private final RouteService routeService;
 
     @RequireAccessToken
     @PostMapping("/route")
-    public ResponseEntity<?> route(@RequestBody Route requestBody, @RequestHeader("Authorization") String token) {
-        return routeService.route(requestBody,token);
+    public ResponseEntity<?> route(@RequestBody Route route, @RequestHeader("Authorization") String token) {
+
+        try {
+            return routeService.route(route, token);
+        }catch (Exception e) {
+            log.error("Failed to route. Error {}.", e.getMessage());
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
+        }
     }
 }
