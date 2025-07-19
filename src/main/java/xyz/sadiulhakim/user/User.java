@@ -36,6 +36,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserLevel level;
 
+    private boolean enabled = true;
+
     private LocalDateTime joinedAt = LocalDateTime.now();
 
     @ManyToMany(fetch = FetchType.EAGER)
