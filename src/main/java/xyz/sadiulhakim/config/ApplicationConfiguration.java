@@ -13,4 +13,5 @@ public class ApplicationConfiguration {
 	Executor defaultTaskExecutor() {
 		return Executors.newVirtualThreadPerTaskExecutor();
 	}
+
 }
